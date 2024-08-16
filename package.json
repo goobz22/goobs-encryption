@@ -42,7 +42,7 @@
   "files": [
     "src"
   ],
-"keywords": [
+  "keywords": [
     "encryption",
     "decryption",
     "aes-256-gcm",
