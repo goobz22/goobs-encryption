@@ -13,15 +13,9 @@ import {
 } from 'crypto';
 import { GlobalConfig } from '../types';
 import { ClientLogger } from 'goobs-testing';
+import type { EncryptedData } from '../types';
 
 const isBrowser = typeof window !== 'undefined' && 'crypto' in window;
-
-interface EncryptedData<T> {
-  encryptedValue: T;
-  iv: Buffer;
-  salt: Buffer;
-  authTag: Buffer;
-}
 
 export const ClientEncryptionModule = {
   encryptionPassword: '',
@@ -120,41 +114,47 @@ export const ClientEncryptionModule = {
     }
 
     this.cryptoImpl.deriveKey(this.encryptionPassword, salt, (key) => {
-      this.cryptoImpl.decrypt(key, iv, encryptedValue as unknown as Buffer, authTag, (decrypted) => {
-        const endTime: number | [number, number] = isBrowser
-          ? performance.now()
-          : process.hrtime(startTime as [number, number]);
-        const totalTime = isBrowser
-          ? (endTime as number) - (startTime as number)
-          : ((endTime as [number, number])[0] * 1e9 + (endTime as [number, number])[1]) / 1e6;
+      this.cryptoImpl.decrypt(
+        key,
+        iv,
+        encryptedValue as unknown as Buffer,
+        authTag,
+        (decrypted) => {
+          const endTime: number | [number, number] = isBrowser
+            ? performance.now()
+            : process.hrtime(startTime as [number, number]);
+          const totalTime = isBrowser
+            ? (endTime as number) - (startTime as number)
+            : ((endTime as [number, number])[0] * 1e9 + (endTime as [number, number])[1]) / 1e6;
 
-        if (decrypted === null) {
-          ClientLogger.error('Decryption error', {
-            totalTime: `${totalTime.toFixed(2)}ms`,
-            encryptedDataLength: (encryptedValue as unknown as Buffer).length,
-            ivLength: iv.length,
-            saltLength: salt.length,
-            authTagLength: authTag.length,
-          });
-          callback(null);
-        } else {
-          ClientLogger.info('Decryption process completed successfully', {
-            totalTime: `${totalTime.toFixed(2)}ms`,
-            encryptedDataLength: (encryptedValue as unknown as Buffer).length,
-            decryptedDataLength: decrypted.length,
-          });
-          try {
-            const decryptedValue = JSON.parse(decrypted.toString()) as T;
-            callback(decryptedValue);
-          } catch (error) {
-            ClientLogger.error('Error parsing decrypted data', {
-              error: error instanceof Error ? error.message : String(error),
-              stack: error instanceof Error ? error.stack : undefined,
+          if (decrypted === null) {
+            ClientLogger.error('Decryption error', {
+              totalTime: `${totalTime.toFixed(2)}ms`,
+              encryptedDataLength: (encryptedValue as unknown as Buffer).length,
+              ivLength: iv.length,
+              saltLength: salt.length,
+              authTagLength: authTag.length,
             });
             callback(null);
+          } else {
+            ClientLogger.info('Decryption process completed successfully', {
+              totalTime: `${totalTime.toFixed(2)}ms`,
+              encryptedDataLength: (encryptedValue as unknown as Buffer).length,
+              decryptedDataLength: decrypted.length,
+            });
+            try {
+              const decryptedValue = JSON.parse(decrypted.toString()) as T;
+              callback(decryptedValue);
+            } catch (error) {
+              ClientLogger.error('Error parsing decrypted data', {
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+              });
+              callback(null);
+            }
           }
-        }
-      });
+        },
+      );
     });
   },
 

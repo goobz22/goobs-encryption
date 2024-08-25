@@ -11,18 +11,12 @@ import {
 } from 'crypto';
 import { GlobalConfig } from '../types';
 import { ServerLogger } from 'goobs-testing';
+import type { EncryptedData } from '../types';
 
 const randomBytesAsync = promisify(randomBytes);
 const scryptAsync = promisify(scrypt);
 
 const ENCRYPTION_ALGORITHM = 'aes-256-gcm';
-
-interface EncryptedData<T> {
-  encryptedValue: T;
-  iv: Buffer;
-  salt: Buffer;
-  authTag: Buffer;
-}
 
 export const ServerEncryptionModule = {
   encryptionPassword: '',

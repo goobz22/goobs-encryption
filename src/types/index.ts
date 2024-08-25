@@ -5,3 +5,10 @@ export interface GlobalConfig {
   logLevel: LogLevel;
   logDirectory: string;
 }
+
+export interface EncryptedData<T> {
+  encryptedValue: T;
+  iv: Buffer;
+  salt: Buffer;
+  authTag: Buffer;
+}

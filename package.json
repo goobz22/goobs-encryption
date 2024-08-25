@@ -1,6 +1,6 @@
 {
   "name": "goobs-encryption",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A robust and flexible encryption library for both client-side and server-side JavaScript/TypeScript applications. This package provides secure AES-256-GCM and AES-256-CCM encryption algorithms, with separate modules optimized for browser and Node.js environments. Features include key derivation, encryption, decryption, and automatic key rotation. Comes with built-in logging and type definitions for TypeScript projects.",
   "main": "src/index.ts",
   "types": "src/index.ts",
